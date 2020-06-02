@@ -22,8 +22,6 @@ AddWindow::AddWindow(QWidget *parent, QString currentTable) : QWidget(parent)
     connect(cancelBtn, SIGNAL(clicked()), this, SLOT(onCancelBtnClicked()));
     connect(acceptBtn, SIGNAL(clicked()), this, SLOT(onAcceptBtnClicked()));
 
-    this->rowNames = rowNames;
-    this->rowTypes = rowTypes;
     setLayout(mainLayout);
     for(int i = 0; i < rowNames.size(); i++){
 
@@ -41,16 +39,20 @@ AddWindow::AddWindow(QWidget *parent, QString currentTable) : QWidget(parent)
             MyDateEdit *dataField = new MyDateEdit();
             dataFields.push_back(dataField);
             mainLayout->addWidget(dataField, i, 1);
+            dataList.append("2000-01-01");
+            continue;
 
         } else {
             MyLineEdit *dataField = new MyLineEdit();
             dataFields.push_back(dataField);
             if(QRegExp("\\b(int)\\b").indexIn(rowTypes[i]) > -1){
                 dataField->setValidator(new QIntValidator(INT_MIN, INT_MAX, this));
+                dataList.append(QString::number(NULL));
+            } else {
+                dataList.append("");
             }
             mainLayout->addWidget(dataField, i, 1);
         }
-        dataList.append("");
     }
 
     mainLayout->addWidget(cancelBtn, rowNames.size(), 0);
