@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QValidator>
 #include <QDateEdit>
+#include <QSqlQuery>
 
 #include <QDebug>
 
@@ -19,7 +20,7 @@ class AddWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit AddWindow(QWidget *parent = nullptr, QStringList rowNames = {""}, QStringList rowTypes = {""});
+    explicit AddWindow(QWidget *parent = nullptr, QString currentTable = "");
 
 signals:
 
@@ -34,11 +35,14 @@ private slots:
 private:
     QStringList rowNames;
     QStringList rowTypes;
+    QList<bool> rowAutoIncrement;
     QStringList dataList;
     QGridLayout *mainLayout;
     QList<QWidget*> dataFields;
     QPushButton *cancelBtn;
     QPushButton *acceptBtn;
+
+    QString currentTable;
 
 };
 

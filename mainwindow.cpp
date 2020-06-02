@@ -24,36 +24,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    QStringList rowNames;
-    QStringList rowTypes;
-    query->exec("DESC " + currentTable);
-    while(query->next()){
-        rowNames.append(query->value(0).toString());
-        rowTypes.append(query->value(1).toString());
-    }
-    AddWindow *addWindow = new AddWindow(nullptr, rowNames, rowTypes);
+    AddWindow *addWindow = new AddWindow(nullptr, currentTable);
     connect(addWindow, SIGNAL(writeData(QString)), this, SLOT(addToDb(QString)));
     addWindow->show();
 }
 
 void MainWindow::addToDb(QString data){
 
-    query->exec("DESC " + currentTable);
-    QStringList headers;
-    while(query->next()){
-        headers.append(query->value(0).toString());
-    }
-
-    QString addQuery = "INSERT INTO " + currentTable + " (";
-    for(auto h : headers){
-
-        addQuery.append(h + ",");
-
-    }
-
-    addQuery.replace(addQuery.size()-1, 1, ")");
-    addQuery.append(" VALUES " + data);
-    query->exec(addQuery);
+    query->exec(data);
     updateTable();
 
 }
@@ -62,12 +40,12 @@ void MainWindow::connectToDb(QString username, QString password, QString databas
 
     db.setHostName("127.0.0.1");
     db.setUserName("qtuser");
-    db.setUserName(username);
-//    db.setPassword("123");
+//    db.setUserName(username);
+    db.setPassword("123");
     db.setPassword(password);
-//    db.setDatabaseName("test");
+    db.setDatabaseName("test");
 //    db.setDatabaseName("ElectronicsManufactoring");
-    db.setDatabaseName(database);
+//    db.setDatabaseName(database);
     if(db.open()){
         qDebug() << "Connected to DB";
         this->show();

@@ -1,7 +1,16 @@
 #include "addwindow.h"
 
-AddWindow::AddWindow(QWidget *parent, QStringList rowNames, QStringList rowTypes) : QWidget(parent)
+AddWindow::AddWindow(QWidget *parent, QString currentTable) : QWidget(parent)
 {
+    this->currentTable = currentTable;
+    QSqlQuery query;
+    query.exec("DESC " + currentTable);
+    while(query.next()){
+        rowNames.append(query.value(0).toString());
+        rowTypes.append(query.value(1).toString());
+        rowAutoIncrement.append(QRegExp("\\b(auto_increment\\b)").indexIn(query.value(5).toString()) >= 0);
+    }
+
     mainLayout = new QGridLayout();
     acceptBtn = new QPushButton();
     cancelBtn = new QPushButton();
@@ -18,8 +27,15 @@ AddWindow::AddWindow(QWidget *parent, QStringList rowNames, QStringList rowTypes
     setLayout(mainLayout);
     for(int i = 0; i < rowNames.size(); i++){
 
-        mainLayout->addWidget(new QLabel(rowNames[i]), i, 0);
+        if(rowAutoIncrement[i]){
+            rowNames.removeAt(i);
+            rowTypes.removeAt(i);
+            rowAutoIncrement.removeAt(i);
+            i--;
+            continue;
+        }
 
+        mainLayout->addWidget(new QLabel(rowNames[i]), i, 0);
         if (QRegExp("\\b(date)\\b").indexIn(rowTypes[i]) > -1)
         {
             MyDateEdit *dataField = new MyDateEdit();
@@ -63,7 +79,17 @@ void AddWindow::onAcceptBtnClicked(){
 
     data.replace(data.size()-1, 1, ")");
 
-    emit writeData(data);
+    QString addQuery = "INSERT INTO " + currentTable + " (";
+    for(auto n : rowNames){
+
+        addQuery.append(n + ",");
+
+    }
+
+    addQuery.replace(addQuery.size()-1, 1, ")");
+    addQuery.append(" VALUES " + data);
+
+    emit writeData(addQuery);
     close();
 
 }
